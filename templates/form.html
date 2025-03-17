@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Maker</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: url('https://source.unsplash.com/random/1920x1080') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.2); /* Increased transparency */
+            backdrop-filter: blur(15px); /* Increased blur for more glass effect */
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+    <script>
+        function addSkillField() {
+            const skillsContainer = document.getElementById('skillsContainer');
+            const newSkillInput = document.createElement('input');
+            newSkillInput.type = 'text';
+            newSkillInput.name = 'skills';
+            newSkillInput.placeholder = 'Enter a skill';
+            newSkillInput.className = 'form-control mb-2';
+            skillsContainer.appendChild(newSkillInput);
+        }
+
+        function addEducationField() {
+            const educationContainer = document.getElementById('educationContainer');
+            const newEducationDiv = document.createElement('div');
+            newEducationDiv.className = 'mb-3';
+            newEducationDiv.innerHTML = `
+                <input type="text" name="education_name" placeholder="Organization Name" class="form-control mb-2"><br>
+                <input type="text" name="education_duration" placeholder="Duration (Years from and to)" class="form-control mb-2"><br>
+                <input type="text" name="education_course" placeholder="Course/Programme" class="form-control mb-2"><br>
+                <textarea name="education_qualification" placeholder="Qualification or Certificates" class="form-control mb-2"></textarea><br>
+            `;
+            educationContainer.appendChild(newEducationDiv);
+        }
+
+        function addWorkExperienceField() {
+            const workExperienceContainer = document.getElementById('workExperienceContainer');
+            const newWorkDiv = document.createElement('div');
+            newWorkDiv.className = 'mb-3';
+            newWorkDiv.innerHTML = `
+                <input type="text" name="workplace_name" placeholder="Workplace Name" class="form-control mb-2"><br>
+                <input type="text" name="work_duration" placeholder="Duration (Years from and to)" class="form-control mb-2"><br>
+                <div class="dutiesContainer">
+                    <textarea name="work_duties" placeholder="Duties" class="form-control mb-2"></textarea><br>
+                </div>
+                <button type="button" class="btn btn-secondary mb-2" onclick="addDutyField(this)">Add Duty</button><br>
+            `;
+            workExperienceContainer.appendChild(newWorkDiv);
+        }
+
+        function addDutyField(button) {
+            const dutiesContainer = button.previousElementSibling;
+            const newDutyInput = document.createElement('textarea');
+            newDutyInput.name = 'work_duties';
+            newDutyInput.placeholder = 'Duties';
+            newDutyInput.className = 'form-control mb-2';
+            dutiesContainer.appendChild(newDutyInput);
+        }
+
+        function addInterestField() {
+            const interestsContainer = document.getElementById('interestsContainer');
+            const newInterestInput = document.createElement('input');
+            newInterestInput.type = 'text';
+            newInterestInput.name = 'interests';
+            newInterestInput.placeholder = 'Enter an interest';
+            newInterestInput.className = 'form-control mb-2';
+            interestsContainer.appendChild(newInterestInput);
+        }
+
+        function addReferenceField() {
+            const referencesContainer = document.getElementById('referencesContainer');
+            const newReferenceDiv = document.createElement('div');
+            newReferenceDiv.className = 'mb-3';
+            newReferenceDiv.innerHTML = `
+                <input type="text" name="reference_name" placeholder="Name of Reference" class="form-control mb-2"><br>
+                <input type="text" name="reference_workplace" placeholder="Place of Work" class="form-control mb-2"><br>
+                <input type="text" name="reference_phone" placeholder="Telephone Number" class="form-control mb-2"><br>
+            `;
+            referencesContainer.appendChild(newReferenceDiv);
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="glass-effect">
+            <h1 class="text-center mb-4">Create Your CV</h1>
+            <form action="/generate_cv" method="post">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone:</label>
+                    <input type="text" id="phone" name="phone" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Location (Residential Address/Poster):</label>
+                    <input type="text" id="location" name="location" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nationality">Nationality:</label>
+                    <input type="text" id="nationality" name="nationality" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="languages">Languages Spoken:</label>
+                    <input type="text" id="languages" name="languages" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="marital_status">Marital Status:</label>
+                    <input type="text" id="marital_status" name="marital_status" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="summary">Summary:</label>
+                    <textarea id="summary" name="summary" class="form-control"></textarea>
+                </div>
+                
+                <h2>Work Experience</h2>
+                <div id="workExperienceContainer" class="mb-3">
+                    <input type="text" name="workplace_name" placeholder="Workplace Name" class="form-control mb-2"><br>
+                    <input type="text" name="work_duration" placeholder="Duration (Years from and to)" class="form-control mb-2"><br>
+                    <div class="dutiesContainer">
+                        <textarea name="work_duties" placeholder="Duties" class="form-control mb-2"></textarea><br>
+                    </div>
+                    <button type="button" class="btn btn-secondary mb-2" onclick="addDutyField(this)">Add Duty</button><br>
+                </div>
+                <button type="button" class="btn btn-primary mb-3" onclick="addWorkExperienceField()">Add Work Experience</button><br>
+                
+                <h2>Education</h2>
+                <div id="educationContainer" class="mb-3">
+                    <input type="text" name="education_name" placeholder="Organization Name" class="form-control mb-2"><br>
+                    <input type="text" name="education_duration" placeholder="Duration (Years from and to)" class="form-control mb-2"><br>
+                    <input type="text" name="education_course" placeholder="Course/Programme" class="form-control mb-2"><br>
+                    <textarea name="education_qualification" placeholder="Qualification or Certificates" class="form-control mb-2"></textarea><br>
+                </div>
+                <button type="button" class="btn btn-primary mb-3" onclick="addEducationField()">Add Education</button><br>
+                
+                <h2>Skills</h2>
+                <div id="skillsContainer" class="mb-3">
+                    <input type="text" name="skills" placeholder="Enter a skill" class="form-control mb-2"><br>
+                </div>
+                <button type="button" class="btn btn-primary mb-3" onclick="addSkillField()">Add Skill</button><br>
+                
+                <h2>Interests</h2>
+                <div id="interestsContainer" class="mb-3">
+                    <input type="text" name="interests" placeholder="Enter an interest" class="form-control mb-2"><br>
+                </div>
+                <button type="button" class="btn btn-primary mb-3" onclick="addInterestField()">Add Interest</button><br>
+                
+                <h2>References</h2>
+                <div id="referencesContainer" class="mb-3">
+                    <input type="text" name="reference_name" placeholder="Name of Reference" class="form-control mb-2"><br>
+                    <input type="text" name="reference_workplace" placeholder="Place of Work" class="form-control mb-2"><br>
+                    <input type="text" name="reference_phone" placeholder="Telephone Number" class="form-control mb-2"><br>
+                </div>
+                <button type="button" class="btn btn-primary mb-3" onclick="addReferenceField()">Add Reference</button><br>
+                
+                <button type="submit" class="btn btn-success">Generate CV</button>
+            </form>
+        </div>
+    </div>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
