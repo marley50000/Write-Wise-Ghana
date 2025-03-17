@@ -95,7 +95,8 @@ def generate_cv():
     
     # Save PDF to buffer
     pdf_buffer = BytesIO()
-    pdf.output(pdf_buffer)
+    pdf_output = pdf.output(dest='S').encode('latin1')
+    pdf_buffer.write(pdf_output)
     pdf_buffer.seek(0)
     
     # Use the user's full name as the file name
