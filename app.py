@@ -19,16 +19,18 @@ def generate_cv():
     # Create a PDF using FPDF
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Arial", size=12)
     
     # Candidate's Name
     pdf.set_font("Arial", 'B', size=16)
-    pdf.cell(200, 10, txt=user_data.get('name', [''])[0], ln=True, align='C')
+    pdf.cell(0, 10, txt=user_data.get('name', [''])[0], ln=True, align='C')
     
-    # Contact Details
+    # Contact Details - Center aligned under the name
     pdf.set_font("Arial", size=12)
-    contact_details = f"Email: {user_data.get('email', [''])[0]}\nPhone: {user_data.get('phone', [''])[0]}\nLocation: {user_data.get('location', [''])[0]}"
-    pdf.multi_cell(0, 10, txt=contact_details)
+    contact_details = f"Email: {user_data.get('email', [''])[0]} | Phone: {user_data.get('phone', [''])[0]} | Location: {user_data.get('location', [''])[0]}"
+    pdf.multi_cell(0, 10, txt=contact_details, align='C')
+    
+    # Add some space before the next section
+    pdf.ln(10)
     
     # New Fields
     pdf.multi_cell(0, 10, txt=f"Nationality: {user_data.get('nationality', [''])[0]}")
