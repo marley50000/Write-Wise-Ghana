@@ -1,10 +1,6 @@
 from flask import Flask, render_template, request, send_file
 from io import BytesIO
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import inch
-from reportlab.pdfgen import canvas
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, ListFlowable, ListItem
+from fpdf import FPDF
 
 app = Flask(__name__)
 
@@ -20,89 +16,88 @@ def create_cv():
 def generate_cv():
     user_data = request.form.to_dict(flat=False)  # Collect all inputs with the same name
     
-    # Create a PDF using ReportLab
-    pdf_buffer = BytesIO()
-    doc = SimpleDocTemplate(pdf_buffer, pagesize=A4, rightMargin=inch, leftMargin=inch, topMargin=0.5*inch, bottomMargin=0.5*inch)
-    
-    # Define styles
-    styles = getSampleStyleSheet()
-    name_style = ParagraphStyle('NameStyle', parent=styles['Normal'], fontSize=24, alignment=1, spaceAfter=12, leading=28)
-    contact_style = ParagraphStyle('ContactStyle', parent=styles['Normal'], fontSize=12, alignment=1, spaceAfter=24)
-    section_heading_style = ParagraphStyle('SectionHeadingStyle', parent=styles['Normal'], fontSize=14, spaceBefore=12, spaceAfter=12, leading=16, fontName='Helvetica-Bold')
-    body_style = ParagraphStyle('BodyStyle', parent=styles['Normal'], fontSize=12, leading=14)
-    bullet_style = ParagraphStyle('BulletStyle', parent=styles['Normal'], fontSize=12, leftIndent=20, leading=14)
-    
-    # Build the document
-    elements = []
+    # Create a PDF using FPDF
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
     
     # Candidate's Name
-    elements.append(Paragraph(user_data.get('name', [''])[0], name_style))
+    pdf.set_font("Arial", 'B', size=16)
+    pdf.cell(200, 10, txt=user_data.get('name', [''])[0], ln=True, align='C')
     
     # Contact Details
-    contact_details = f"{user_data.get('email', [''])[0]}<br/>{user_data.get('phone', [''])[0]}<br/>{user_data.get('location', [''])[0]}"
-    elements.append(Paragraph(contact_details, contact_style))
+    pdf.set_font("Arial", size=12)
+    contact_details = f"Email: {user_data.get('email', [''])[0]}\nPhone: {user_data.get('phone', [''])[0]}\nLocation: {user_data.get('location', [''])[0]}"
+    pdf.multi_cell(0, 10, txt=contact_details)
     
     # New Fields
-    elements.append(Paragraph(f"Nationality: {user_data.get('nationality', [''])[0]}", body_style))
-    elements.append(Paragraph(f"Languages Spoken: {user_data.get('languages', [''])[0]}", body_style))
-    elements.append(Paragraph(f"Marital Status: {user_data.get('marital_status', [''])[0]}", body_style))
+    pdf.multi_cell(0, 10, txt=f"Nationality: {user_data.get('nationality', [''])[0]}")
+    pdf.multi_cell(0, 10, txt=f"Languages Spoken: {user_data.get('languages', [''])[0]}")
+    pdf.multi_cell(0, 10, txt=f"Marital Status: {user_data.get('marital_status', [''])[0]}")
     
     # Professional Summary
-    elements.append(Paragraph('PROFESSIONAL SUMMARY', section_heading_style))
-    elements.append(Paragraph(user_data.get('summary', [''])[0], body_style))
+    pdf.set_font("Arial", 'B', size=14)
+    pdf.cell(0, 10, txt='PROFESSIONAL SUMMARY', ln=True)
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, txt=user_data.get('summary', [''])[0])
     
     # Work Experience
-    elements.append(Paragraph('WORK EXPERIENCE', section_heading_style))
+    pdf.set_font("Arial", 'B', size=14)
+    pdf.cell(0, 10, txt='WORK EXPERIENCE', ln=True)
+    pdf.set_font("Arial", size=12)
     workplaces = user_data.get('workplace_name', [])
     durations = user_data.get('work_duration', [])
     duties_list = user_data.get('work_duties', [])
     duty_index = 0
     for i in range(len(workplaces)):
-        elements.append(Paragraph(f"<b>{workplaces[i]}</b> ({durations[i]})", body_style))
-        duties = []
+        pdf.cell(0, 10, txt=f"{workplaces[i]} ({durations[i]})", ln=True)
         while duty_index < len(duties_list) and duties_list[duty_index].strip():
-            duties.append(duties_list[duty_index].strip())
+            pdf.multi_cell(0, 10, txt=f"- {duties_list[duty_index].strip()}")
             duty_index += 1
         duty_index += 1  # Skip the empty entry between different work experiences
-        duty_list = ListFlowable([ListItem(Paragraph(duty, bullet_style)) for duty in duties], bulletType='bullet')
-        elements.append(duty_list)
-        elements.append(Spacer(1, 18))  # Increased space after each work experience
     
     # Education
-    elements.append(Paragraph('EDUCATION', section_heading_style))
+    pdf.set_font("Arial", 'B', size=14)
+    pdf.cell(0, 10, txt='EDUCATION', ln=True)
+    pdf.set_font("Arial", size=12)
     education_names = user_data.get('education_name', [])
     education_durations = user_data.get('education_duration', [])
     education_courses = user_data.get('education_course', [])
     education_qualifications = user_data.get('education_qualification', [])
     for i in range(min(len(education_names), len(education_durations), len(education_courses), len(education_qualifications))):
-        elements.append(Paragraph(f"<b>{education_names[i]}</b> ({education_durations[i]})<br/>Course/Programme: {education_courses[i]}<br/>{education_qualifications[i]}", body_style))
-        elements.append(Spacer(1, 18))  # Increased space after each education entry
+        pdf.multi_cell(0, 10, txt=f"{education_names[i]} ({education_durations[i]})\nCourse/Programme: {education_courses[i]}\n{education_qualifications[i]}")
     
     # Skills
-    elements.append(Paragraph('SKILLS', section_heading_style))
+    pdf.set_font("Arial", 'B', size=14)
+    pdf.cell(0, 10, txt='SKILLS', ln=True)
+    pdf.set_font("Arial", size=12)
     skills = user_data.get('skills', [])
-    skill_list = ListFlowable([ListItem(Paragraph(skill.strip(), bullet_style)) for skill in skills], bulletType='bullet')
-    elements.append(skill_list)
+    for skill in skills:
+        pdf.multi_cell(0, 10, txt=f"- {skill.strip()}")
     
     # Interests
-    elements.append(Paragraph('INTERESTS', section_heading_style))
+    pdf.set_font("Arial", 'B', size=14)
+    pdf.cell(0, 10, txt='INTERESTS', ln=True)
+    pdf.set_font("Arial", size=12)
     interests = user_data.get('interests', [])
-    interest_list = ListFlowable([ListItem(Paragraph(interest.strip(), bullet_style)) for interest in interests], bulletType='bullet')
-    elements.append(interest_list)
+    for interest in interests:
+        pdf.multi_cell(0, 10, txt=f"- {interest.strip()}")
     
     # References
-    elements.append(Paragraph('REFERENCES', section_heading_style))
+    pdf.set_font("Arial", 'B', size=14)
+    pdf.cell(0, 10, txt='REFERENCES', ln=True)
+    pdf.set_font("Arial", size=12)
     reference_names = user_data.get('reference_name', [])
     reference_workplaces = user_data.get('reference_workplace', [])
     reference_phones = user_data.get('reference_phone', [])
     for i in range(min(len(reference_names), len(reference_workplaces), len(reference_phones))):
-        elements.append(Paragraph(f"{reference_names[i]}<br/>Place of Work: {reference_workplaces[i]}<br/>Telephone: {reference_phones[i]}", body_style))
-        elements.append(Spacer(1, 18))  # Increased space after each reference entry
+        pdf.multi_cell(0, 10, txt=f"{reference_names[i]}\nPlace of Work: {reference_workplaces[i]}\nTelephone: {reference_phones[i]}")
     
-    # Build PDF
-    doc.build(elements)
-    
+    # Save PDF to buffer
+    pdf_buffer = BytesIO()
+    pdf.output(pdf_buffer)
     pdf_buffer.seek(0)
+    
     # Use the user's full name as the file name
     full_name = user_data.get('name', [''])[0].replace(' ', '_')  # Replace spaces with underscores
     return send_file(pdf_buffer, as_attachment=True, download_name=f'{full_name}_CV.pdf')
