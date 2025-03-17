@@ -3,6 +3,8 @@ services:
     name: cv-maker
     env: python
     pythonVersion: 3.9
-    buildCommand: pip install -r requirements.txt
+    buildCommand: |
+      export REPORTLAB_NO_ACCEL=1
+      pip install -r requirements.txt
     startCommand: python app.py
     plan: free
