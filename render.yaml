@@ -4,6 +4,8 @@ services:
     env: python
     pythonVersion: 3.9
     buildCommand: |
-      export REPORTLAB_NO_ACCEL=1 && pip install -r requirements.txt
+      echo "Disabling ReportLab C extensions"
+      export REPORTLAB_NO_ACCEL=1
+      pip install -r requirements.txt
     startCommand: python app.py
     plan: free
